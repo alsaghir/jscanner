@@ -5,39 +5,27 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;;
+import java.util.Objects;
+
+;
 
 public class TokenGenerator {
 
+    private static final char[] generalLetters = "abcdfghjklmnopqstuwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    private static final char[] kwLetters = "ierv".toCharArray();
+    private static final char[] singleSymbols = "+-/,@{}()[];".toCharArray();
+    private static final String[] symbolNames = {"plus", "minus", "devision", "colon", "at", "setOpen", "setClose", "parantheseOpen", "parantheseClose", "bracketOpen", "bracketClose", "semiColon"};
+    private static final char[] doubleSymbols = "<>=*".toCharArray();
+    private static final char[] spaces = {'\r', '\n', '\t', ' '};
     public static ArrayList<String> tokenClass;
     public static ArrayList<String> tokenLexeme;
     private static String state;
     private static String currentContinuousString;
     private static boolean endOfFile = false;
-    private static final char[] generalLetters = "abcdfghjklmnopqstuwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-    private static final char[] kwLetters = "ierv".toCharArray();
-    private static final char[] singleSymbols = "+-/,@{}()[];".toCharArray();
-    private static final char[] doubleSymbols = "<>=*".toCharArray();
-    private static final char[] spaces = {'\r', '\n', '\t', ' '};
     private static boolean getNextCharacter = true;
     private static FileReader inputFile;
     private static BufferedReader bufferedReader;
     private static int currentCharacterIntegerForm = Integer.MIN_VALUE;
-
-
-    public enum Classes {
-        IDENTIFIER("Id"), NUMBER("num"), STRING("string"), SYMBOL("symbol"), WHITE_SPACE("blank"), BLOCK_COMMENT("block"), Line_COMMENT("line"), ERROR("error"), KEYWORD("keyword");
-        private final String text;
-
-        private Classes(final String text) {
-            this.text = text;
-        }
-
-        @Override
-        public String toString() {
-            return text;
-        }
-    }
 
 
     public TokenGenerator(String sourceFilePath, String destinationFilePath) {
@@ -246,7 +234,7 @@ public class TokenGenerator {
                     break;
 
                 case "intst2":
-                   lastKeywordLetterState(currentCharacter);
+                    lastKeywordLetterState(currentCharacter);
                     break;
 
                 case "elsest1":
@@ -303,9 +291,16 @@ public class TokenGenerator {
                     break;
 
                 case "idstate":
-                    if (contains(generalLetters, currentCharacter) || contains(kwLetters, currentCharacter)) {
+                    if (Objects.equals(currentContinuousString, "#")) {
                         currentContinuousString += currentCharacter;
                         getNextCharacter = true;
+                    } else if (contains(generalLetters, currentCharacter) || contains(kwLetters, currentCharacter)) {
+                        currentContinuousString += currentCharacter;
+                        getNextCharacter = true;
+                    } else if (currentContinuousString.length() == 1 || ((currentContinuousString.length() == 2) && currentContinuousString.charAt(0) == '#')) {
+                        moveToState("initial");
+                        getNextCharacter = false;
+                        storeAndClean(Classes.ERROR.toString());
                     } else {
                         moveToState("initial");
                         getNextCharacter = false;
@@ -326,9 +321,21 @@ public class TokenGenerator {
 
     //store the token as class and lexeme in arraylists and reset the main string varuable
     private static void storeAndClean(String className) {
-        tokenLexeme.add(currentContinuousString);
-        tokenClass.add(className);
-        currentContinuousString = "";
+
+        //for symbol names
+        if (Objects.equals(className, Classes.SYMBOL.toString())) {
+            for (int i = 0; i < singleSymbols.length; i++) {
+                if (Objects.equals(currentContinuousString, Character.toString(singleSymbols[i]))) {
+                    tokenLexeme.add(currentContinuousString);
+                    tokenClass.add(symbolNames[i]);
+                }
+            }
+
+        } else {
+            tokenLexeme.add(currentContinuousString);
+            tokenClass.add(className);
+            currentContinuousString = "";
+        }
     }
 
     private static char handleSimilarSymbolsInput(char symbol) {
@@ -405,5 +412,19 @@ public class TokenGenerator {
             storeAndClean(Classes.KEYWORD.toString());
         }
 
+    }
+
+    public enum Classes {
+        IDENTIFIER("Id"), NUMBER("num"), STRING("string"), SYMBOL("symbol"), WHITE_SPACE("blank"), BLOCK_COMMENT("block"), Line_COMMENT("line"), ERROR("error"), KEYWORD("keyword");
+        private final String text;
+
+        private Classes(final String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
     }
 }
