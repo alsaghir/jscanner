@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-       //checking the arguments provided when running the application
+        //checking the arguments provided when running the application
         if (Argument.checkArguments(args) == 0) {
             System.out.println(Argument.getArgError());
             System.exit(0);

@@ -6,14 +6,9 @@ import java.io.IOException;
 
 public class PrintTokens {
 
-    private String outputString = "";
     private static FileWriter targetFile;
     private static BufferedWriter bufferedWriter;
-
-    public enum Output{
-        CONSOLE, FILE
-    }
-
+    private String outputString = "";
     private Output out;
 
     public PrintTokens(Output out){
@@ -38,7 +33,7 @@ public class PrintTokens {
     }
 
     private void exportToConsole(){
-            System.out.println(outputString);
+        System.out.println(outputString);
     }
 
     private void exportToFile(){
@@ -51,6 +46,10 @@ public class PrintTokens {
             System.out.println("Buffer Error");
             e.printStackTrace();
         }
+    }
+
+    public enum Output {
+        CONSOLE, FILE
     }
 
 
