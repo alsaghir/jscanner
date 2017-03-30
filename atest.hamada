@@ -1,4 +1,4 @@
-int a = 5;
+int ab=xa+5;
 
 #a
 
@@ -13,3 +13,7 @@ aa
 aaa
 
 if (are = 4) { apply(); }
+
+%any words or signs could be here // \ { }
+
+another = 4;
