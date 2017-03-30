@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-;
 
 public class TokenGenerator {
 
@@ -16,6 +15,9 @@ public class TokenGenerator {
     private static final char[] singleSymbols = "+-/,@{}()[];".toCharArray();
     private static final String[] symbolNames = {"plus", "minus", "devision", "colon", "at", "setOpen", "setClose", "parantheseOpen", "parantheseClose", "bracketOpen", "bracketClose", "semiColon"};
     private static final char[] doubleSymbols = "<>=*".toCharArray();
+    private static final String[] doubleSingleSymbolNames = {"lessThan", "moreTHan", "equal", "multiply"};
+    private static final String[] doubleSymbolsLiterals = {"<=", ">=", "<>", "==", "**"};
+    private static final String[] doubleSymbolNames = {"lessThanOrEqual", "moreTHanOrEqual", "notEqual", "equality", "doubleMultiply"};
     private static final char[] spaces = {'\r', '\n', '\t', ' '};
     public static ArrayList<String> tokenClass;
     public static ArrayList<String> tokenLexeme;
@@ -100,34 +102,45 @@ public class TokenGenerator {
                         currentContinuousString = currentContinuousString.replace("\n", "\\n");
                         currentContinuousString = currentContinuousString.replace("\r", "\\r");
                         currentContinuousString = currentContinuousString.replace("\t", "\\t");
-                        currentContinuousString = currentContinuousString.replace(" ", "\\s");
+                        //currentContinuousString = currentContinuousString.replace(" ", "\\s");
                         moveToState("initial");
                         storeAndClean(Classes.Line_COMMENT.toString());
                         currentCharacter = (char) currentCharacterIntegerForm;
                         getNextCharacter = false;
                     } else if (currentCharacter == '\'') {
-                        boolean lastWasDoubleQuote = false;
+                        int firstSequencedQuotes = 1;
+                        int lastSequencedQuotes = 0;
+                        boolean blockComment = false;
                         boolean tempFlag = true;
                         //read until the end or until single quotation mark
                         currentContinuousString = "'";
                         try {
-                            if (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('"' == (char) currentCharacterIntegerForm)) {
-                                currentContinuousString += "\"";
-
-                                while (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && tempFlag) {
-                                    if (lastWasDoubleQuote)
+                            if (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('\'' == (char) currentCharacterIntegerForm)) {
+                                firstSequencedQuotes++;
+                                if (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('\'' == (char) currentCharacterIntegerForm)) {
+                                    firstSequencedQuotes++;
+                                    currentContinuousString = "'''";
+                                    blockComment = true;
+                                    while (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && tempFlag) {
                                         if ('\'' == (char) currentCharacterIntegerForm) {
-                                            tempFlag = false;
-                                        } else {
-                                            lastWasDoubleQuote = false;
+                                            lastSequencedQuotes++;
+                                        } else if ('\'' != (char) currentCharacterIntegerForm) {
+                                            lastSequencedQuotes = 0;
                                         }
 
-                                    if (('"' == (char) currentCharacterIntegerForm))
-                                        lastWasDoubleQuote = true;
+                                        if (lastSequencedQuotes == 3)
+                                            tempFlag = false;
 
-                                    currentContinuousString += (char) currentCharacterIntegerForm;
+                                        currentContinuousString += (char) currentCharacterIntegerForm;
+                                    }
                                 }
-                            } else {
+                            }
+
+                            if (firstSequencedQuotes == 2){
+                                currentContinuousString = "''";
+
+                            } else if (!blockComment){
+                                currentContinuousString += (char) currentCharacterIntegerForm;
                                 while (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('\'' != (char) currentCharacterIntegerForm)) {
                                     currentContinuousString += (char) currentCharacterIntegerForm;
                                 }
@@ -139,10 +152,13 @@ public class TokenGenerator {
 
                         getNextCharacter = true;
                         moveToState("initial");
-                        if (currentContinuousString.charAt(1) == '"')
+                        if (currentContinuousString.length() >= 3 && currentContinuousString.charAt(2) == '\'')
                             storeAndClean(Classes.BLOCK_COMMENT.toString());
                         else
                             storeAndClean(Classes.STRING.toString());
+
+                        currentContinuousString += (char) currentCharacterIntegerForm;
+
                     } else if (currentCharacter == 'i') {
                         moveToState("ist");
                         getNextCharacter = true;
@@ -166,7 +182,7 @@ public class TokenGenerator {
                     } else if (Character.isDigit(currentCharacter)) {
                         try {
 
-                            while ( !endOfFile && Character.isDigit(currentCharacter)) {
+                            while (!endOfFile && Character.isDigit(currentCharacter)) {
                                 currentContinuousString += (char) currentCharacterIntegerForm;
                                 endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
                                 currentCharacter = (char) currentCharacterIntegerForm;
@@ -180,7 +196,7 @@ public class TokenGenerator {
                         moveToState("initial");
                         storeAndClean(Classes.NUMBER.toString());
 
-                    }else if (contains(singleSymbols, currentCharacter)) {
+                    } else if (contains(singleSymbols, currentCharacter)) {
                         moveToState("initial");
                         getNextCharacter = true;
                         currentContinuousString = Character.toString(currentCharacter);
@@ -196,13 +212,14 @@ public class TokenGenerator {
                         } else if (Objects.equals(currentContinuousString, "<")) {
                             handleLessThanSymbol();
                         } else if (Objects.equals(currentContinuousString, ">")) {
-                            try {endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
-                                if (('=' == (char) currentCharacterIntegerForm) && !endOfFile)  {
+                            try {
+                                endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
+                                if (('=' == (char) currentCharacterIntegerForm) && !endOfFile) {
                                     currentContinuousString += (char) currentCharacterIntegerForm;
                                     getNextCharacter = true;
                                 } else {
                                     getNextCharacter = false;
-                                    currentCharacter = (char)currentCharacterIntegerForm;
+                                    currentCharacter = (char) currentCharacterIntegerForm;
                                 }
                                 moveToState("initial");
                                 storeAndClean(Classes.SYMBOL.toString());
@@ -324,24 +341,43 @@ public class TokenGenerator {
 
         //for symbol names
         if (Objects.equals(className, Classes.SYMBOL.toString())) {
-            for (int i = 0; i < singleSymbols.length; i++) {
-                if (Objects.equals(currentContinuousString, Character.toString(singleSymbols[i]))) {
-                    tokenLexeme.add(currentContinuousString);
-                    tokenClass.add(symbolNames[i]);
+            if (contains(singleSymbols, currentContinuousString.charAt(0))) {
+                for (int i = 0; i < singleSymbols.length; i++) {
+                    if (Objects.equals(currentContinuousString, Character.toString(singleSymbols[i]))) {
+                        tokenLexeme.add(currentContinuousString);
+                        tokenClass.add(symbolNames[i]);
+                    }
+                }
+            } else if (contains(doubleSymbols, currentContinuousString.charAt(0))) { // for possible double symbols
+                if (currentContinuousString.length() == 2) {
+                    for (int i = 0; i < doubleSymbolNames.length; i++) {
+                        if (Objects.equals(currentContinuousString, doubleSymbolsLiterals[i])) {
+                            tokenLexeme.add(currentContinuousString);
+                            tokenClass.add(doubleSymbolNames[i]);
+                        }
+                    }
+                } else if (currentContinuousString.length() == 1) {
+                    for (int i = 0; i < doubleSingleSymbolNames.length; i++) {
+                        if (Objects.equals(currentContinuousString, Character.toString(doubleSymbols[i]))) {
+                            tokenLexeme.add(currentContinuousString);
+                            tokenClass.add(doubleSingleSymbolNames[i]);
+                        }
+                    }
                 }
             }
 
-        } else {
-            tokenLexeme.add(currentContinuousString);
-            tokenClass.add(className);
+            } else {
+                tokenLexeme.add(currentContinuousString);
+                tokenClass.add(className);
+            }
             currentContinuousString = "";
         }
-    }
 
     private static char handleSimilarSymbolsInput(char symbol) {
         char tempCurrentChar;
-        try {endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
-            if ((symbol == (char) currentCharacterIntegerForm) && !endOfFile)  {
+        try {
+            endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
+            if ((symbol == (char) currentCharacterIntegerForm) && !endOfFile) {
                 currentContinuousString += (char) currentCharacterIntegerForm;
                 getNextCharacter = true;
             } else {
@@ -358,8 +394,9 @@ public class TokenGenerator {
     }
 
     private static void handleLessThanSymbol() {
-        try {endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
-            if ((('=' == (char) currentCharacterIntegerForm) || ('>' == (char) currentCharacterIntegerForm)) && !endOfFile)  {
+        try {
+            endOfFile = ((currentCharacterIntegerForm = bufferedReader.read()) == -1);
+            if ((('=' == (char) currentCharacterIntegerForm) || ('>' == (char) currentCharacterIntegerForm)) && !endOfFile) {
                 currentContinuousString += (char) currentCharacterIntegerForm;
                 getNextCharacter = true;
             } else {
