@@ -1,6 +1,33 @@
+<string, 'aaaaaaaaaaaaaaaaaaaaaaaaaa'>
+<blank, \n>
+<blank, \n>
+<string, ''>
+<blank, \n>
+<string, ''>
+<Id, aaaaaaaaaaaaaaaaaaaaaaaaa>
+<blank, \n>
+<blank, \n>
+<block, '''aaaaaaaaaaaaaaaaaaaaafsdf lksksdfms sdfkms s
+
+
+
+sdfsfsfsdfss'''>
+<blank, \n>
+<blank, \n>
+<blank, \n>
+<Id, check>
+<blank, \s>
+<num, 2>
+<plus, +>
+<num, 5>
+<equal, =>
+<num, 10>
+<blank, \n>
+<blank, \n>
 <keyword, int>
 <blank, \s>
 <Id, ab>
+<equal, =>
 <Id, xa>
 <plus, +>
 <num, 5>
@@ -30,6 +57,7 @@
 <parantheseOpen, (>
 <Id, are>
 <blank, \s>
+<equal, =>
 <blank, \s>
 <num, 4>
 <parantheseClose, )>
@@ -44,11 +72,20 @@
 <setClose, }>
 <blank, \n>
 <blank, \n>
-<line, %any\swords\sor\ssigns\scould\sbe\shere\s//\s\\s{\s}>
+<line, %any words or signs could be here // \ { }>
 <blank, \n>
 <blank, \n>
 <Id, another>
 <blank, \s>
+<equal, =>
 <blank, \s>
 <num, 4>
+<semiColon, ;>
+<blank, \n>
+<blank, \n>
+<Id, another>
+<blank, \s>
+<notEqual, <>>
+<blank, \s>
+<num, 5>
 <semiColon, ;>
