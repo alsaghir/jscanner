@@ -10,24 +10,24 @@ import java.util.Objects;
 
 public class TokenGenerator {
 
-    private static final char[] generalLetters = "abcdfghjklmnopqstuwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-    private static final char[] kwLetters = "ierv".toCharArray();
-    private static final char[] singleSymbols = "+-/,@{}()[];".toCharArray();
-    private static final String[] symbolNames = {"plus", "minus", "devision", "colon", "at", "setOpen", "setClose", "parantheseOpen", "parantheseClose", "bracketOpen", "bracketClose", "semiColon"};
-    private static final char[] doubleSymbols = "<>=*".toCharArray();
-    private static final String[] doubleSingleSymbolNames = {"lessThan", "moreTHan", "equal", "multiply"};
-    private static final String[] doubleSymbolsLiterals = {"<=", ">=", "<>", "==", "**"};
-    private static final String[] doubleSymbolNames = {"lessThanOrEqual", "moreTHanOrEqual", "notEqual", "equality", "doubleMultiply"};
-    private static final char[] spaces = {'\r', '\n', '\t', ' '};
-    public static ArrayList<String> tokenClass;
-    public static ArrayList<String> tokenLexeme;
-    private static String state;
-    private static String currentContinuousString;
-    private static boolean endOfFile = false;
-    private static boolean getNextCharacter = true;
-    private static FileReader inputFile;
-    private static BufferedReader bufferedReader;
-    private static int currentCharacterIntegerForm = Integer.MIN_VALUE;
+    private static final char[] generalLetters = "abcdfghjklmnopqstuwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray(); //General letters except keywords letters
+    private static final char[] kwLetters = "ierv".toCharArray();  //Possible keywords letters like i for int and if, r for return..etc
+    private static final char[] singleSymbols = "+-/,@{}()[];".toCharArray();  //symbols which are single
+    private static final String[] symbolNames = {"plus", "minus", "devision", "colon", "at", "setOpen", "setClose", "parantheseOpen", "parantheseClose", "bracketOpen", "bracketClose", "semiColon"}; //names of the symbols
+    private static final char[] doubleSymbols = "<>=*".toCharArray(); //the symbols that might come in double like <<
+    private static final String[] doubleSingleSymbolNames = {"lessThan", "moreTHan", "equal", "multiply"};  //names of the symbols that might come in double
+    private static final String[] doubleSymbolsLiterals = {"<=", ">=", "<>", "==", "**"}; //mixed symbols
+    private static final String[] doubleSymbolNames = {"lessThanOrEqual", "moreTHanOrEqual", "notEqual", "equality", "doubleMultiply"}; //names of the mixed symbols
+    private static final char[] spaces = {'\r', '\n', '\t', ' '}; //the spaces and blanks
+    public static ArrayList<String> tokenClass; //This array will have the names of stored tokens
+    public static ArrayList<String> tokenLexeme; //This array will have the values of stored tokens
+    private static String state; //This is the current state
+    private static String currentContinuousString; //This string will hold the current value/lexeme we are working on until it ends with another token
+    private static boolean endOfFile = false; //flag for the end of file
+    private static boolean getNextCharacter = true; //flag for getting next character or NOT
+    private static FileReader inputFile; //an object that will read from the files
+    private static BufferedReader bufferedReader; //an object that will buffer from the file after being read
+    private static int currentCharacterIntegerForm = Integer.MIN_VALUE; //This will have the character being read from the file in integer form, because the character readed in integer form
 
 
     public TokenGenerator(String sourceFilePath, String destinationFilePath) {
@@ -39,18 +39,21 @@ public class TokenGenerator {
         currentContinuousString = "";
 
 
-        try {//Reading the input file
+        try {//Getting the file ready for reading and open a buffer for it
             inputFile = new FileReader(Argument.getSourceFilePath());
             bufferedReader = new BufferedReader(inputFile);
 
             //scanning characters
             while (!endOfFile) {
+                
+                // reading from the file one character only and confirming it is NOT the end of the file
                 endOfFile = (currentCharacterIntegerForm = bufferedReader.read()) == -1;
-                getNextCharacter = false;
-                scanForTokens((char) currentCharacterIntegerForm);
+                getNextCharacter = false; //default value of the flag
+                scanForTokens((char) currentCharacterIntegerForm); //do the scanning MAGIC
             }
 
-            bufferedReader.close();
+            bufferedReader.close(); //close the buffer now we are finished reading the file
+            
         } catch (FileNotFoundException e) {
             System.out.println("No file to read");
             e.printStackTrace();
@@ -332,16 +335,17 @@ public class TokenGenerator {
         }
     }
 
+    //change the state value
     private static void moveToState(String st) {
         state = st;
     }
 
-    //store the token as class and lexeme in arraylists and reset the main string varuable
+    //store the token as class and lexeme in arraylists and reset the main string variable to get ready to move for the scanning the next token
     private static void storeAndClean(String className) {
 
         //for symbol names
         if (Objects.equals(className, Classes.SYMBOL.toString())) {
-            if (contains(singleSymbols, currentContinuousString.charAt(0))) {
+            if (contains(singleSymbols, currentContinuousString.charAt(0))) { //for single symbols
                 for (int i = 0; i < singleSymbols.length; i++) {
                     if (Objects.equals(currentContinuousString, Character.toString(singleSymbols[i]))) {
                         tokenLexeme.add(currentContinuousString);
@@ -366,11 +370,11 @@ public class TokenGenerator {
                 }
             }
 
-            } else {
+            } else { //anything else other than symbols
                 tokenLexeme.add(currentContinuousString);
                 tokenClass.add(className);
             }
-            currentContinuousString = "";
+            currentContinuousString = ""; //reset the main string we are using to get ready and store the next coming token
         }
 
     private static char handleSimilarSymbolsInput(char symbol) {
