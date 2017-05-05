@@ -119,30 +119,34 @@ public class TokenGenerator {
                         currentContinuousString = "'";
                         try {
                             if (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('\'' == (char) currentCharacterIntegerForm)) {
-                                firstSequencedQuotes++;
+                                firstSequencedQuotes++;  //second ' is found
                                 if (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('\'' == (char) currentCharacterIntegerForm)) {
-                                    firstSequencedQuotes++;
-                                    currentContinuousString = "'''";
-                                    blockComment = true;
+                                    firstSequencedQuotes++; //third ' is found
+                                    currentContinuousString = "'''";  //this is a block comment so here we go
+                                    blockComment = true;  //this is a block comment now
+                                    
+                                    //read until ''' is found
                                     while (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && tempFlag) {
                                         if ('\'' == (char) currentCharacterIntegerForm) {
-                                            lastSequencedQuotes++;
+                                            lastSequencedQuotes++; //counter for the single quotation mark
                                         } else if ('\'' != (char) currentCharacterIntegerForm) {
-                                            lastSequencedQuotes = 0;
+                                            lastSequencedQuotes = 0; //if one or two ' comes (not three), then the counter resets to zero always
                                         }
 
-                                        if (lastSequencedQuotes == 3)
+                                        if (lastSequencedQuotes == 3)  //if there are ''' counted then this is the end of the block comment
                                             tempFlag = false;
 
                                         currentContinuousString += (char) currentCharacterIntegerForm;
                                     }
+                                    
+                                    
                                 }
                             }
 
-                            if (firstSequencedQuotes == 2){
+                            if (firstSequencedQuotes == 2){ //for '' this is empty string
                                 currentContinuousString = "''";
 
-                            } else if (!blockComment){
+                            } else if (!blockComment){ //if it's not block comment because of wrong numbers of ' then consider it string and read until ' is found
                                 currentContinuousString += (char) currentCharacterIntegerForm;
                                 while (((currentCharacterIntegerForm = bufferedReader.read()) != -1) && ('\'' != (char) currentCharacterIntegerForm)) {
                                     currentContinuousString += (char) currentCharacterIntegerForm;
@@ -152,7 +156,8 @@ public class TokenGenerator {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
+                        
+                        //finally, clean all with respect to the output (block comment or string)
                         getNextCharacter = true;
                         moveToState("initial");
                         if (currentContinuousString.length() >= 3 && currentContinuousString.charAt(2) == '\'')
