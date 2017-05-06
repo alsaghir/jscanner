@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="jscanner:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/jscanner_jar</output-path>
-    <root id="archive" name="jscanner.jar">
-      <element id="module-output" name="jscanner" />
-    </root>
-  </artifact>
-</component>
