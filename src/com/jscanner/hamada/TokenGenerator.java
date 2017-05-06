@@ -102,10 +102,6 @@ public class TokenGenerator {
                             System.out.println("IO EXCEPTION in initial state");
                             e.printStackTrace();
                         }
-                        currentContinuousString = currentContinuousString.replace("\n", "\\n");
-                        currentContinuousString = currentContinuousString.replace("\r", "\\r");
-                        currentContinuousString = currentContinuousString.replace("\t", "\\t");
-                        //currentContinuousString = currentContinuousString.replace(" ", "\\s");
                         moveToState("initial");
                         storeAndClean(Classes.Line_COMMENT.toString());
                         currentCharacter = (char) currentCharacterIntegerForm;
