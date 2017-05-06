@@ -156,7 +156,7 @@ public class TokenGenerator {
                         //finally, clean all with respect to the output (block comment or string)
                         getNextCharacter = true;
                         moveToState("initial");
-                        if (currentContinuousString.length() >= 3 && currentContinuousString.charAt(2) == '\'')
+                        if (currentContinuousString.length() >= 3 && currentContinuousString.charAt(2) == '\'' && currentContinuousString.charAt(2) == '\'')
                             storeAndClean(Classes.BLOCK_COMMENT.toString());
                         else
                             storeAndClean(Classes.STRING.toString());
