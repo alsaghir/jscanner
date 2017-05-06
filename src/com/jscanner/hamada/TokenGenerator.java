@@ -431,17 +431,16 @@ public class TokenGenerator {
 
     private static void checkKeywordLetters(char conditionCharacter, char currentChecknigCharacter, String newState) {
 
-        if (conditionCharacter == currentChecknigCharacter) {
+        if (conditionCharacter == currentChecknigCharacter) { //if it's truly the correct letter in the keyword
             moveToState(newState);
             getNextCharacter = true;
             currentContinuousString += currentChecknigCharacter;
-        } else if (contains(generalLetters, currentChecknigCharacter) || (contains(kwLetters, currentChecknigCharacter))) {
+        } else if (contains(generalLetters, currentChecknigCharacter) || (contains(kwLetters, currentChecknigCharacter))) {  //if it's another letter
             moveToState("idstate");
             getNextCharacter = false;
         } else {
-            moveToState("initial");
+            moveToState("idstate");  //Let idstate handle this on its own
             getNextCharacter = false;
-            storeAndClean(Classes.IDENTIFIER.toString());
         }
 
     }
