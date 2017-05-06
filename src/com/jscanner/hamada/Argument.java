@@ -1,3 +1,8 @@
+/*
+* This is class job is to handle the argument passed as source file path and destination
+* file path if provided.
+*/
+
 package com.jscanner.hamada;
 
 import java.util.regex.Matcher;
